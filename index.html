@@ -510,15 +510,81 @@ dialog::backdrop{background:rgba(3,5,9,.55);backdrop-filter:blur(3px)}
 }
 @media (prefers-reduced-motion:reduce){.hero::after,.live i,.drop-art,.scan-steps li{animation:none!important}}
 
-</style>
+/* ---------- Accueil : tuiles des modules ---------- */
+.home-h{display:flex;justify-content:space-between;align-items:flex-end;gap:16px 24px;flex-wrap:wrap}
+.home-h h2{font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:-.025em;margin:4px 0 2px}
+.home-h .sub{max-width:70ch}
+.home-h .cta{display:flex;gap:10px;flex-wrap:wrap}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.tile{--c:#3aa7e6;--c2:#2b8fd0;position:relative;overflow:hidden;isolation:isolate;border-radius:22px;padding:22px 20px 18px;color:#fff;text-align:center;cursor:pointer;
+  background:linear-gradient(160deg,var(--c) 0%,var(--c2) 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 18px 40px -22px var(--c2),0 4px 10px -6px rgba(0,0,0,.25);
+  display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;outline:none;animation:tileIn .6s cubic-bezier(.2,.8,.2,1) both}
+.tile:nth-child(2){animation-delay:.06s}.tile:nth-child(3){animation-delay:.12s}.tile:nth-child(4){animation-delay:.18s}.tile:nth-child(5){animation-delay:.24s}.tile:nth-child(6){animation-delay:.3s}
+@keyframes tileIn{from{opacity:0;transform:translateY(16px) scale(.98)}}
+.tile::before,.tile::after{content:"";position:absolute;z-index:-1;border-radius:50%;background:rgba(255,255,255,.14)}
+.tile::before{width:220px;height:220px;right:-80px;top:-90px;animation:drift 9s ease-in-out infinite}
+.tile::after{width:140px;height:140px;left:-50px;bottom:-60px;background:rgba(255,255,255,.10);animation:drift 11s ease-in-out infinite reverse}
+@keyframes drift{50%{transform:translate(-14px,12px) scale(1.06)}}
+.tile:hover,.tile:focus-visible{transform:translateY(-6px);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 28px 50px -22px var(--c2),0 6px 14px -6px rgba(0,0,0,.3)}
+.tile:focus-visible{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--c2)}
+.tile h3{margin:0;font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.02em;text-shadow:0 2px 0 rgba(0,0,0,.08)}
+.tile .ts{margin:0;font-size:13.5px;font-weight:500;opacity:.95}
+.ill{width:178px;height:178px;margin:10px 0 6px;border-radius:50%;background:#fff;display:grid;place-items:center;
+  box-shadow:inset 0 0 0 8px #fff,inset 0 0 0 10px var(--c),0 14px 30px -14px rgba(0,0,0,.45);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.tile:hover .ill{transform:scale(1.06) rotate(-3deg)}
+.ill svg{width:120px;height:120px;overflow:visible}
+.ill svg *{transform-box:fill-box}
+.tbadge{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.24);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);backdrop-filter:blur(4px)}
+.tbadge::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff}
+.tile.hot .tbadge{background:#fff;color:var(--c2)}
+.tile.hot .tbadge::before{background:var(--c2);animation:pulse 1.8s infinite}
+.tlinks{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 0;margin-top:8px;font-size:14.5px;font-weight:600}
+.tlinks button{all:unset;cursor:pointer;padding:2px 8px;border-radius:7px;color:#fff;position:relative}
+.tlinks button+button::before{content:"";position:absolute;left:-1px;top:20%;bottom:20%;width:1.5px;background:rgba(255,255,255,.6)}
+.tlinks button:hover{background:rgba(255,255,255,.2)}
+.tlinks button:focus-visible{outline:2px solid #fff}
+.tile.off .tlinks button{opacity:.7}
+/* Couleurs des modules : vives et chaleureuses */
+.t-blue{--c:#4cb3f0;--c2:#2a8fd6}.t-orange{--c:#ffab3d;--c2:#f5841f}.t-green{--c:#4fcf94;--c2:#22a86d}
+.t-pink{--c:#ff9bd0;--c2:#ec5fa9}.t-purple{--c:#b495ef;--c2:#8a63d8}.t-teal{--c:#3fd0cf;--c2:#14a5aa}
+/* Animations des dessins */
+@keyframes needle{0%,100%{transform:rotate(-55deg)}50%{transform:rotate(38deg)}}
+@keyframes barUp{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
+@keyframes ring{0%,60%,100%{transform:rotate(0)}10%{transform:rotate(16deg)}20%{transform:rotate(-14deg)}30%{transform:rotate(10deg)}40%{transform:rotate(-6deg)}}
+@keyframes blink{50%{opacity:.25}}
+@keyframes draw{0%,8%{stroke-dashoffset:40}30%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:40}}
+@keyframes bob{50%{transform:translateY(-5px)}}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}60%{transform:translateY(0)}}
+@keyframes swap{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.55)}}
+@keyframes slideR{0%,100%{transform:translateX(-4px)}50%{transform:translateX(5px)}}
+@keyframes rise2{0%{transform:translateY(8px);opacity:0}30%,70%{opacity:1}100%{transform:translateY(-14px);opacity:0}}
+@keyframes float{50%{transform:translateY(-6px) rotate(-4deg)}}
+.a-needle{transform-origin:50% 100%;animation:needle 4s ease-in-out infinite}
+.a-bar{transform-origin:50% 100%;animation:barUp 2.4s ease-in-out infinite}
+.a-ring{transform-origin:50% 0%;animation:ring 2.6s ease-in-out infinite}
+.a-blink{animation:blink 1.4s ease-in-out infinite}
+.a-draw{stroke-dasharray:40;animation:draw 3.6s ease-in-out infinite}
+.a-bob{animation:bob 2.8s ease-in-out infinite}
+.a-hop{animation:hop 2.2s ease-in-out infinite}
+.a-swap{transform-origin:50% 100%;animation:swap 3s ease-in-out infinite}
+.a-slide{animation:slideR 2.4s ease-in-out infinite}
+.a-rise{animation:rise2 2.6s ease-in infinite}
+.a-float{animation:float 3.4s ease-in-out infinite}
+@media (max-width:1100px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.tiles{grid-template-columns:1fr}.home-h h2{font-size:22px}}
+@media (prefers-reduced-motion:reduce){.tile,.tile::before,.tile::after,.ill svg *{animation:none!important}}
+@media print{.tile{box-shadow:none}.tile::before,.tile::after{display:none}}
 
+</style>
 </head><body>
 <div class="app">
   <aside class="side">
     <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8 3.2v6.1c0 4.6-3.3 8.4-8 9.7-4.7-1.3-8-5.1-8-9.7V5.7z"/><path d="M8.3 12.2l2.6 2.6 4.9-5.4"/></svg></div><div><b>Contrôle Tarifs</b><small>DDEP_DSE-SROP</small></div></div>
     <nav id="nav" aria-label="Sections">
       <div class="nav-label">Pilotage</div>
-      <button type="button" data-view="dash" aria-current="page"><span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Tableau de bord</span></button>
+      <button type="button" data-view="home" aria-current="page"><span><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Accueil</span></button>
+      <button type="button" data-view="dash"><span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Tableau de bord</span></button>
       <button type="button" data-view="lines"><span><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>Contrôles</span><span class="count" id="nLines">0</span></button>
       <button type="button" data-view="open"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Points ouverts</span><span class="count" id="nOpen">0</span></button>
       <div class="nav-label">Analyse</div>
@@ -557,7 +623,8 @@ dialog::backdrop{background:rgba(3,5,9,.55);backdrop-filter:blur(3px)}
       <div class="drop" id="drop"><span>Glissez ici le fichier « Ordres de travail clôturés » (feuille des OT, CB ou IB, FH et VPN si présente) pour lancer les contrôles.</span><span class="toast" id="toast"></span></div>
       <div class="err" id="err" hidden></div>
 
-      <section class="view" id="v-dash">
+      <section class="view" id="v-home"><div class="home-h" id="homeHead"></div><div class="tiles" id="tiles"></div></section>
+      <section class="view" id="v-dash" hidden>
         <div class="hero" id="hero"></div>
         <div class="kpis" id="kpis"></div>
         <div class="grid2">
@@ -652,7 +719,7 @@ dialog::backdrop{background:rgba(3,5,9,.55);backdrop-filter:blur(3px)}
 <div class="page-drop" id="pageDrop" hidden>Déposez le fichier pour lancer les contrôles</div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <dialog id="help"><h2 style="margin-bottom:10px">Raccourcis clavier</h2><table><tbody>
-  <tr><td><kbd>1</kbd> … <kbd>7</kbd></td><td>Changer de vue</td></tr>
+  <tr><td><kbd>1</kbd> … <kbd>8</kbd></td><td>Changer de vue (1 = Accueil)</td></tr>
   <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Rechercher partout (codes, clients, vues, actions)</td></tr>
   <tr><td><kbd>/</kbd></td><td>Rechercher une ligne</td></tr>
   <tr><td><kbd>O</kbd></td><td>Charger un fichier</td></tr>
@@ -1005,7 +1072,7 @@ const decCls={"Validé":"ok","Justifié":"info","À corriger":"bad","Corrigé":"
 function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 const caseOf=r=>r.discount>0?"Positif":r.discount<0?"Négatif":"Sans";
 function go(v){ state.view=v; document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===v?"page":"false"));
-  ["dash","lines","open","clients","cmp","hist","rules"].forEach(x=>$("#v-"+x).hidden=x!==v); }
+  ["home","dash","lines","open","clients","cmp","hist","rules"].forEach(x=>$("#v-"+x).hidden=x!==v); }
 
 function renderAll(){
   const R=state.result; if(!R) return renderEmpty();
@@ -1052,7 +1119,7 @@ function renderAll(){
   $("#dups").innerHTML=(R.dups||[]).length?`<div class="tablebox" style="border:0"><table><thead><tr><th>Code</th><th>Occurrences</th></tr></thead><tbody>${R.dups.map(x=>`<tr data-code="${esc(x.code)}"><td class="code">${esc(x.code)}</td><td>${x.l.map(r=>`${r.sheet} <span class="mono">${fmt(r.redevance)}</span>`).join(" · ")}</td></tr>`).join("")}</tbody></table></div>`:`<p class="sub">Aucun code n'apparaît deux fois.</p>`;
   $("#coh").innerHTML=R.coh.length?`<div class="tablebox" style="border:0"><table><thead><tr><th>Formule</th><th>Lignes et tarifs facturés</th></tr></thead><tbody>${R.coh.map(x=>`<tr><td class="code">${esc(x.f)}</td><td>${x.l.map(r=>`${esc(r.code)} <span class="mono">${fmt(r.nouveau)}</span>`).join(" · ")}</td></tr>`).join("")}</tbody></table></div>`:`<p class="sub">Chaque formule est facturée au même tarif pour tous les clients.</p>`;
   renderLines(); renderHist(); renderClients(); renderCmp();
-  renderHero(R); document.body.classList.add("has-data");
+  renderHero(R); renderHome(R); document.body.classList.add("has-data");
   if(state.animate){ state.animate=false; countUp($("#hero")); countUp($("#kpis")); }
 }
 function chips(el,vals,cur,key,counts){ $(el).innerHTML=vals.map(v=>`<button type="button" class="chip" aria-pressed="${cur===v}" data-k="${key}" data-v="${v}">${v}${counts?` · ${counts(v)}`:""}</button>`).join(""); }
@@ -1091,7 +1158,7 @@ function renderHist(){
     :`<tr><td colspan="10" class="empty">L'historique est vide.</td></tr>`;
 }
 function renderEmpty(){
-  $("#kpis").innerHTML=""; renderHero(null); document.body.classList.remove("has-data");
+  $("#kpis").innerHTML=""; renderHero(null); renderHome(null); document.body.classList.remove("has-data");
   $("#progLbl").textContent="—";
   ["#donut","#cases","#dashIssues","#openList","#coh","#dups"].forEach(s=>$(s).innerHTML='<p class="sub">Les résultats apparaîtront après le chargement du fichier.</p>');
   $("#rows").innerHTML='<tr><td colspan="13" class="empty">Les lignes CB/IB, FH et VPN contrôlées apparaîtront ici.</td></tr>';
@@ -1323,7 +1390,7 @@ function countUp(root){
 const pal={items:[],shown:[],sel:0};
 function palItems(){
   const it=[];
-  const views=[["dash","Tableau de bord"],["lines","Contrôles"],["open","Points ouverts"],["clients","Clients"],["cmp","Comparatif"],["hist","Historique"],["rules","Méthode"]];
+  const views=[["home","Accueil"],["dash","Tableau de bord"],["lines","Contrôles"],["open","Points ouverts"],["clients","Clients"],["cmp","Comparatif"],["hist","Historique"],["rules","Méthode"]];
   views.forEach(([v,l],i)=>it.push({grp:"Vues",ic:String(i+1),label:l,sub:"Aller à la vue",run:()=>go(v)}));
   const act=[["↑","Charger le fichier du mois",()=>$("#file").click()],["X","Exporter le classeur Excel",()=>!$("#exportBtn").disabled&&$("#exportBtn").click()],["P","Exporter le rapport PowerPoint",()=>!$("#pptBtn").disabled&&$("#pptBtn").click()],
     ["◐","Changer de thème (clair / sombre)",()=>$("#themeBtn").click()],["⤓","Sauvegarder les décisions",()=>$("#backupBtn").click()],["?","Raccourcis clavier",()=>$("#help").showModal()]];
@@ -1362,7 +1429,99 @@ $("#palette").addEventListener("click",e=>{ if(e.target===$("#palette")) $("#pal
 $("#cmdkBtn").onclick=openPalette;
 document.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){ e.preventDefault(); openPalette(); } });
 
-/* ---------- Tiroir de détail ---------- */
+/* ---------- Accueil : une tuile par module, avec dessin animé, chiffre en direct et raccourcis ---------- */
+const K="#1f2937";
+const ILL={
+  dash:`<svg viewBox="0 0 120 120" aria-hidden="true">
+    <path d="M18 78A42 42 0 0 1 30.3 48.3" fill="none" stroke="#ff6b6b" stroke-width="12"/>
+    <path d="M30.3 48.3A42 42 0 0 1 60 36" fill="none" stroke="#ffc542" stroke-width="12"/>
+    <path d="M60 36A42 42 0 0 1 102 78" fill="none" stroke="#4fcf94" stroke-width="12"/>
+    <path d="M12 78A48 48 0 0 1 108 78" fill="none" stroke="${K}" stroke-width="3" stroke-linecap="round"/>
+    <g class="a-needle"><line x1="60" y1="78" x2="60" y2="42" stroke="${K}" stroke-width="4.5" stroke-linecap="round"/></g>
+    <circle cx="60" cy="78" r="7" fill="${K}"/><circle cx="60" cy="78" r="2.6" fill="#fff"/>
+    <line x1="28" y1="106" x2="92" y2="106" stroke="${K}" stroke-width="3" stroke-linecap="round"/>
+    <rect class="a-bar" x="38" y="90" width="10" height="16" rx="2" fill="#4cb3f0" stroke="${K}" stroke-width="2.5"/>
+    <rect class="a-bar" style="animation-delay:.4s" x="55" y="84" width="10" height="22" rx="2" fill="#2a8fd6" stroke="${K}" stroke-width="2.5"/>
+    <rect class="a-bar" style="animation-delay:.8s" x="72" y="92" width="10" height="14" rx="2" fill="#ffab3d" stroke="${K}" stroke-width="2.5"/></svg>`,
+  open:`<svg viewBox="0 0 120 120" aria-hidden="true">
+    <rect x="28" y="26" width="58" height="80" rx="9" fill="#fff" stroke="${K}" stroke-width="3.5"/>
+    <rect x="45" y="19" width="24" height="13" rx="4" fill="#ffab3d" stroke="${K}" stroke-width="3"/>
+    <circle class="a-blink" cx="41" cy="52" r="4.5" fill="#ff6b6b"/><line x1="52" y1="52" x2="76" y2="52" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/>
+    <circle class="a-blink" style="animation-delay:.45s" cx="41" cy="69" r="4.5" fill="#ffc542"/><line x1="52" y1="69" x2="72" y2="69" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="41" cy="86" r="4.5" fill="#4fcf94"/><line x1="52" y1="86" x2="68" y2="86" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/>
+    <g class="a-ring"><path d="M80 44c0-11 4.5-18 11-18s11 7 11 18l3.5 5h-29z" fill="#ffab3d" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><circle cx="91" cy="53" r="3.4" fill="${K}"/></g>
+    <circle class="a-blink" cx="103" cy="24" r="6.5" fill="#ff4d5e" stroke="#fff" stroke-width="2.5"/></svg>`,
+  lines:`<svg viewBox="0 0 120 120" aria-hidden="true">
+    <rect x="22" y="16" width="70" height="88" rx="9" fill="#fff" stroke="${K}" stroke-width="3.5"/>
+    ${[38,60,82].map((y,i)=>`<rect x="32" y="${y-8}" width="16" height="16" rx="4" fill="#e7fbf1" stroke="${K}" stroke-width="2.5"/>
+      <path class="a-draw" style="animation-delay:${i*.45}s" d="M35 ${y}l4 4 7-8" fill="none" stroke="#22a86d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="56" y1="${y-3}" x2="82" y2="${y-3}" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/><line x1="56" y1="${y+5}" x2="72" y2="${y+5}" stroke="#c9d3df" stroke-width="3" stroke-linecap="round"/>`).join("")}
+    <g class="a-float"><circle cx="92" cy="86" r="13" fill="rgba(79,207,148,.28)" stroke="${K}" stroke-width="3.5"/><line x1="101.5" y1="95.5" x2="111" y2="105" stroke="${K}" stroke-width="5.5" stroke-linecap="round"/></g></svg>`,
+  clients:`<svg viewBox="0 0 120 120" aria-hidden="true">
+    <g class="a-hop"><path d="M96 40s-10-10-10-17a10 10 0 0 1 20 0c0 7-10 17-10 17z" fill="#ff6b6b" stroke="${K}" stroke-width="2.8"/><circle cx="96" cy="23" r="3.4" fill="#fff"/></g>
+    <g class="a-hop" style="animation-delay:.7s"><path d="M22 36s-7-7-7-12a7 7 0 0 1 14 0c0 5-7 12-7 12z" fill="#4cb3f0" stroke="${K}" stroke-width="2.6"/><circle cx="22" cy="24" r="2.4" fill="#fff"/></g>
+    <g class="a-bob"><path d="M22 98c0-15 10-26 22-26s22 11 22 26z" fill="#ec5fa9" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><circle cx="44" cy="54" r="13" fill="#ffd9b8" stroke="${K}" stroke-width="3"/><path d="M31.5 51c2-9 8-12 13-12 6 0 11 4 12 11-5-4-14-3-25 1z" fill="${K}"/></g>
+    <g class="a-bob" style="animation-delay:.9s"><path d="M58 100c0-13 9-23 20-23s20 10 20 23z" fill="#8a63d8" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><circle cx="78" cy="61" r="11.5" fill="#c98b62" stroke="${K}" stroke-width="3"/><path d="M66.5 59c1-8 6-11 11.5-11s10.5 3 11.5 11c-4-3-12-4-23 0z" fill="${K}"/></g>
+    <line x1="16" y1="102" x2="104" y2="102" stroke="${K}" stroke-width="3" stroke-linecap="round"/></svg>`,
+  cmp:`<svg viewBox="0 0 120 120" aria-hidden="true">
+    <rect x="18" y="16" width="38" height="20" rx="6" fill="#efe9fd" stroke="${K}" stroke-width="2.6"/><text x="37" y="30.5" text-anchor="middle" font-family="Segoe UI,Arial" font-size="11" font-weight="800" fill="${K}">AOÛT</text>
+    <rect x="64" y="16" width="38" height="20" rx="6" fill="#8a63d8" stroke="${K}" stroke-width="2.6"/><text x="83" y="30.5" text-anchor="middle" font-family="Segoe UI,Arial" font-size="11" font-weight="800" fill="#fff">SEPT</text>
+    <g class="a-slide"><path d="M50 50h20m-6-6 6 6-6 6" fill="none" stroke="${K}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <rect x="24" y="68" width="12" height="32" rx="2.5" fill="#d9cff7" stroke="${K}" stroke-width="2.6"/><rect x="40" y="58" width="12" height="42" rx="2.5" fill="#b495ef" stroke="${K}" stroke-width="2.6"/>
+    <rect class="a-swap" x="68" y="62" width="12" height="38" rx="2.5" fill="#ffab3d" stroke="${K}" stroke-width="2.6"/><rect class="a-swap" style="animation-delay:1.2s" x="84" y="50" width="12" height="50" rx="2.5" fill="#8a63d8" stroke="${K}" stroke-width="2.6"/>
+    <line x1="16" y1="100" x2="104" y2="100" stroke="${K}" stroke-width="3" stroke-linecap="round"/></svg>`,
+  reports:`<svg viewBox="0 0 120 120" aria-hidden="true">
+    <path d="M36 14h34l20 20v68a7 7 0 0 1-7 7H36a7 7 0 0 1-7-7V21a7 7 0 0 1 7-7z" fill="#fff" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M70 14v14a6 6 0 0 0 6 6h14" fill="#e3fafa" stroke="${K}" stroke-width="3" stroke-linejoin="round"/>
+    <line x1="40" y1="46" x2="66" y2="46" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/><line x1="40" y1="56" x2="78" y2="56" stroke="#c9d3df" stroke-width="3" stroke-linecap="round"/>
+    <g class="a-rise"><path d="M59 100V74m-10 10 10-10 10 10" fill="none" stroke="#14a5aa" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="a-float"><rect x="84" y="62" width="30" height="17" rx="4.5" fill="#22a86d" stroke="${K}" stroke-width="2.6"/><text x="99" y="74.5" text-anchor="middle" font-family="Segoe UI,Arial" font-size="10" font-weight="800" fill="#fff">XLS</text></g>
+    <g class="a-float" style="animation-delay:1.1s"><rect x="6" y="72" width="30" height="17" rx="4.5" fill="#f5841f" stroke="${K}" stroke-width="2.6"/><text x="21" y="84.5" text-anchor="middle" font-family="Segoe UI,Arial" font-size="10" font-weight="800" fill="#fff">PPT</text></g></svg>`
+};
+const needFile=()=>{ if(state.result) return false; notify("Chargez d'abord le fichier du mois.",true); return true; };
+const toLines=s=>()=>{ state.fStatus=s; renderLines(); go("lines"); };
+const toOpen=f=>()=>{ state.fDec=f; renderAll(); go("open"); };
+const toClients=(f,focus)=>()=>{ state.cli=null; state.fCli=f; renderClients(); go("clients"); if(focus) setTimeout(()=>$("#cq").focus(),60); };
+const TILES=[
+  {view:"dash",cls:"t-blue",title:"Tableau de bord",sub:"Vue d'ensemble du mois",ill:"dash",
+   badge:R=>R?`${R.rows.length?Math.round(100*R.rows.filter(r=>r.statut==="Conforme").length/R.rows.length):0} % de conformité`:"En attente du fichier",
+   links:[["Score",()=>go("dash")],["6 contrôles",()=>go("dash")],["Graphiques",()=>{ go("dash"); setTimeout(()=>$("#donut").scrollIntoView({behavior:"smooth",block:"center"}),80); }]]},
+  {view:"open",cls:"t-orange",title:"Points ouverts",sub:"À traiter avant facturation",ill:"open",
+   badge:R=>{ if(!R) return "Aucun point pour l'instant"; const n=issues(R).length; return n?`${n} à traiter`:"Rien à traiter"; }, hot:R=>R&&issues(R).length>0,
+   links:[["Sans décision",toOpen("Sans décision")],["Traités",toOpen("Traités")],["Tous",toOpen("Tous")]]},
+  {view:"lines",cls:"t-green",title:"Contrôles",sub:"Lignes CB/IB, FH et VPN",ill:"lines",
+   badge:R=>R?`${R.rows.length} ligne${R.rows.length>1?"s":""} · ${shList(R).join(" · ")}`:"6 contrôles prêts",
+   links:[["Anomalies",toLines("Anomalie")],["À vérifier",toLines("À vérifier")],["Conformes",toLines("Conforme")]]},
+  {view:"clients",cls:"t-pink",title:"Clients",sub:"Une fiche par client",ill:"clients",
+   badge:R=>R?`${clientIndex().size} clients`:"Fiches après chargement",
+   links:[["Fiches",toClients("Tous")],["Avec points ouverts",toClients("Avec points ouverts")],["Rechercher",toClients("Tous",true)]]},
+  {view:"cmp",cls:"t-purple",title:"Comparatif",sub:"Mois par mois",ill:"cmp",
+   badge:()=>{ const n=allSnaps().length; return n?`${n} mois en détail`:"Dès 2 mois chargés"; },
+   links:[["Statuts",()=>go("cmp")],["Tarifs",()=>go("cmp")],["Historique",()=>go("hist")]]},
+  {view:"reports",cls:"t-teal",title:"Rapports",sub:"Exports prêts à envoyer",ill:"reports",
+   badge:R=>R?"Prêts à exporter":"Après chargement",
+   links:[["Excel",()=>{ if(!needFile()) $("#exportBtn").click(); }],["PowerPoint",()=>{ if(!needFile()) $("#pptBtn").click(); }],["PDF",()=>{ if(needFile()) return; go("dash"); setTimeout(()=>window.print(),450); }]]}
+];
+function renderHome(R){
+  const h=new Date().getHours(), greet=h<18?"Bonjour":"Bonsoir";
+  const iss=R?issues(R).length:0;
+  $("#homeHead").innerHTML=`<div><span class="eyebrow">Accueil · ${esc(R?cap(period()):"Contrôle des nouveaux tarifs")}</span>
+      <h2>${greet}, que voulez-vous contrôler aujourd'hui ?</h2>
+      <p class="sub">${R?`Fichier « ${esc(state.label)} » analysé${state.loadedAt?" à "+state.loadedAt.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):""} : ${R.rows.length} lignes contrôlées, ${iss} point${iss>1?"s":""} ouvert${iss>1?"s":""}.`:"Chargez le fichier du mois pour afficher les chiffres en direct sur chaque module. Vous pouvez aussi le déposer n'importe où dans la page."}</p></div>
+    <div class="cta">${R?(iss?`<button class="btn primary" type="button" data-go="open">Traiter les ${iss} point${iss>1?"s":""}</button>`:"")+`<label class="btn" for="file">Charger un autre fichier</label>`
+      :`<label class="btn primary" for="file"><svg viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M4 15v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg>Charger le fichier du mois</label>`}</div>`;
+  $("#tiles").innerHTML=TILES.map((t,i)=>`<div class="tile ${t.cls}${t.hot&&t.hot(R)?" hot":""}${R?"":" off"}" tabindex="0" role="button" data-t="${i}" aria-label="${esc(t.title)}">
+      <h3>${t.title}</h3><p class="ts">${t.sub}</p><div class="ill">${ILL[t.ill]}</div>
+      <span class="tbadge">${esc(t.badge(R))}</span>
+      <div class="tlinks">${t.links.map(([l],j)=>`<button type="button" data-l="${j}">${l}</button>`).join("")}</div></div>`).join("");
+}
+$("#tiles").addEventListener("click",e=>{ const tile=e.target.closest(".tile"); if(!tile) return; const t=TILES[+tile.dataset.t];
+  const l=e.target.closest(".tlinks button"); if(l){ e.stopPropagation(); t.links[+l.dataset.l][1](); return; }
+  if(t.view==="reports"){ go("dash"); return; }
+  go(t.view); });
+$("#tiles").addEventListener("keydown",e=>{ if(e.key==="Enter"&&e.target.classList.contains("tile")) e.target.click(); });
+
+
 /* ctx : "open" (liste des points ouverts) ou null (tableau des contrôles) — définit l'ordre de navigation ↑ / ↓ */
 function openDrawer(code,ctx){
   const R=state.result; if(!R) return;
@@ -1455,7 +1614,7 @@ $("#csvBtn").onclick=()=>{ const list=state.lastList||[]; if(!list.length) retur
 $("#printBtn").onclick=()=>window.print();
 
 /* ---------- Événements ---------- */
-const VIEWS=["dash","lines","open","clients","cmp","hist","rules"];
+const VIEWS=["home","dash","lines","open","clients","cmp","hist","rules"];
 $("#nav").onclick=e=>{ const b=e.target.closest("[data-view]"); if(!b) return; if(b.dataset.view==="clients"&&state.cli){ state.cli=null; renderClients(); } go(b.dataset.view); };
 const _go=go; go=v=>{ _go(v); if(location.hash!=="#"+v) history.replaceState(null,"","#"+v); window.scrollTo({top:0}); };
 document.addEventListener("click",e=>{ const g=e.target.closest("[data-go]");
@@ -1505,7 +1664,7 @@ function installDialog(){
   d.showModal();
 }
 /* ---------- Application installable (PWA) : quand l'appli est servie en https ---------- */
-const APP_VERSION="2026-10-13.3";
+const APP_VERSION="2026-10-13.4";
 const isWeb=/^https?:$/.test(location.protocol);
 const isInstalled=()=>matchMedia("(display-mode: standalone)").matches||matchMedia("(display-mode: window-controls-overlay)").matches;
 let installEvt=null;
@@ -1554,7 +1713,7 @@ document.addEventListener("keydown",e=>{
   if(typing||e.ctrlKey||e.metaKey||e.altKey||$("#help").open) return;
   if(drawerOpen&&(e.key==="ArrowDown"||e.key==="j")){ e.preventDefault(); stepDrawer(1); return; }
   if(drawerOpen&&(e.key==="ArrowUp"||e.key==="k")){ e.preventDefault(); stepDrawer(-1); return; }
-  if(/^[1-7]$/.test(e.key)){ if(drawerOpen) closeDrawer(); go(VIEWS[+e.key-1]); }
+  if(/^[1-8]$/.test(e.key)){ if(drawerOpen) closeDrawer(); go(VIEWS[+e.key-1]); }
   else if(e.key==="/"){ e.preventDefault(); if(drawerOpen) closeDrawer(); go("lines"); $("#q").focus(); }
   else if(e.key==="?"){ $("#help").showModal(); }
   else if(e.key==="o"||e.key==="O"){ $("#file").click(); }
@@ -1594,6 +1753,6 @@ document.addEventListener("drop",e=>{ if(!hasFiles(e)) return; e.preventDefault(
 async function saveFile(name,blob){ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),3000); return true; }
 renderEmpty();
 $("#csvBtn").disabled=true;
-{ const v=location.hash.slice(1); if(VIEWS.includes(v)) go(v); }
+{ const v=location.hash.slice(1); go(VIEWS.includes(v)?v:"home"); }
 </script>
 </body></html>
