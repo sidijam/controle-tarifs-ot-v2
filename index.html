@@ -593,6 +593,29 @@ dialog::backdrop{background:rgba(3,5,9,.55);backdrop-filter:blur(3px)}
 #whoDlg input{font:inherit;font-size:15px;width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);margin:10px 0 4px}
 @media (max-width:900px){.share-box{flex:1 1 100%}}
 
+/* Colonne de gauche : défile sur elle-même si elle dépasse la hauteur de l'écran (n'allonge plus la page) */
+@media (min-width:901px){.side{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}.side::-webkit-scrollbar{display:none}}
+/* ---------- Accueil sur un seul écran : les tuiles se partagent la hauteur disponible ---------- */
+@media (min-width:701px){
+  .content:has(#v-home:not([hidden])){padding-bottom:16px}
+  #v-home{height:var(--home-h,auto);min-height:400px;display:flex;flex-direction:column;gap:14px}
+  #v-home .home-h{flex:none}
+  #v-home .home-h h2{font-size:22px;margin:2px 0 0}
+  #v-home .home-h .sub{font-size:12.5px;margin:2px 0 0}
+  #v-home .home-h .btn{padding:7px 12px;font-size:12.5px}
+  #v-home .tiles{flex:1;min-height:0;grid-auto-rows:minmax(0,1fr);gap:14px}
+  .tile{container-type:size;min-height:0;padding:10px 14px;gap:3px;justify-content:center;border-radius:18px}
+  .tile h3{font-size:clamp(15px,8.5cqh,22px)}
+  .tile .ts{font-size:12px}
+  .ill{width:clamp(44px,calc(100cqh - 132px),150px);height:clamp(44px,calc(100cqh - 132px),150px);margin:4px 0;box-shadow:inset 0 0 0 5px #fff,inset 0 0 0 7px var(--c),0 10px 22px -12px rgba(0,0,0,.45)}
+  .ill svg{width:70%;height:70%}
+  .tbadge{font-size:11.5px;padding:3px 10px}
+  .tlinks{font-size:12.5px;margin-top:2px}
+  .tlinks button{padding:1px 7px}
+  @container (max-height:190px){ .tile .ts{display:none} .ill{width:clamp(40px,calc(100cqh - 112px),120px);height:clamp(40px,calc(100cqh - 112px),120px)} }
+  @container (max-height:150px){ .tile .tlinks{display:none} .ill{width:clamp(36px,calc(100cqh - 84px),100px);height:clamp(36px,calc(100cqh - 84px),100px)} }
+}
+
 </style>
 </head><body>
 <div class="app">
@@ -1098,7 +1121,7 @@ const decCls={"Validé":"ok","Justifié":"info","À corriger":"bad","Corrigé":"
 function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 const caseOf=r=>r.discount>0?"Positif":r.discount<0?"Négatif":"Sans";
 function go(v){ state.view=v; document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===v?"page":"false"));
-  ["home","dash","lines","open","clients","cmp","hist","rules"].forEach(x=>$("#v-"+x).hidden=x!==v); }
+  ["home","dash","lines","open","clients","cmp","hist","rules"].forEach(x=>$("#v-"+x).hidden=x!==v); if(v==="home") requestAnimationFrame(fitHome); }
 
 function renderAll(){
   const R=state.result; if(!R) return renderEmpty();
@@ -1528,7 +1551,10 @@ const TILES=[
    badge:R=>R?"Prêts à exporter":"Après chargement",
    links:[["Excel",()=>{ if(!needFile()) $("#exportBtn").click(); }],["PowerPoint",()=>{ if(!needFile()) $("#pptBtn").click(); }],["PDF",()=>{ if(needFile()) return; go("dash"); setTimeout(()=>window.print(),450); }]]}
 ];
-function renderHome(R){
+/* Hauteur de l'Accueil = hauteur visible de la fenêtre sous l'en-tête (aucun défilement) */
+function fitHome(){ const v=$("#v-home"); if(!v||v.hidden) return; const top=v.getBoundingClientRect().top+window.scrollY; v.style.setProperty("--home-h",Math.max(400,Math.floor(window.innerHeight-top-16))+"px"); }
+window.addEventListener("resize",fitHome);
+function renderHome(R){ setTimeout(fitHome,0);
   const h=new Date().getHours(), greet=h<18?"Bonjour":"Bonsoir";
   const iss=R?issues(R).length:0;
   $("#homeHead").innerHTML=`<div><span class="eyebrow">Accueil · ${esc(R?cap(period()):"Contrôle des nouveaux tarifs")}</span>
@@ -1690,7 +1716,7 @@ function installDialog(){
   d.showModal();
 }
 /* ---------- Application installable (PWA) : quand l'appli est servie en https ---------- */
-const APP_VERSION="2026-10-13.5";
+const APP_VERSION="2026-10-14.1";
 const isWeb=/^https?:$/.test(location.protocol);
 const isInstalled=()=>matchMedia("(display-mode: standalone)").matches||matchMedia("(display-mode: window-controls-overlay)").matches;
 let installEvt=null;
