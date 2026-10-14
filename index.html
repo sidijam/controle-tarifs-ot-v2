@@ -616,6 +616,46 @@ dialog::backdrop{background:rgba(3,5,9,.55);backdrop-filter:blur(3px)}
   @container (max-height:150px){ .tile .tlinks{display:none} .ill{width:clamp(36px,calc(100cqh - 84px),100px);height:clamp(36px,calc(100cqh - 84px),100px)} }
 }
 
+/* ---------- Colonne de gauche : mêmes informations, effet visuel allégé ---------- */
+@media (min-width:901px){
+  .app{grid-template-columns:236px 1fr}
+  .side{padding:14px 12px 10px;gap:8px;background:#0a0d12;box-shadow:none}
+  .brand{padding:2px 6px 10px;gap:10px}
+  .brand .mark{width:32px;height:32px;border-radius:9px;box-shadow:0 0 0 1px rgba(255,255,255,.1) inset,0 4px 12px -6px var(--glow)}
+  .brand .mark svg{width:17px;height:17px}
+  .brand b{font-size:14px}
+  .nav-label{padding:10px 10px 3px;font-size:9.5px;color:#4b5567}
+  nav button{padding:6px 10px;font-size:13px;font-weight:500;border-radius:8px;color:#b4bccb}
+  nav button svg{width:15px;height:15px;opacity:.6}
+  nav .count{font-size:10.5px;padding:0 6px;min-width:20px;background:transparent;color:#6f7a8e}
+  nav .count.hot{background:transparent;box-shadow:none;color:#ff8a96}
+  nav button[aria-current="page"]{background:rgba(255,255,255,.05)}
+  nav button[aria-current="page"]::before{left:-12px;top:7px;bottom:7px;box-shadow:none}
+  .side-actions{border-top:1px solid rgba(255,255,255,.05);padding-top:8px}
+  .side-actions button,.side-actions label{font-size:12px;padding:4.5px 10px;color:#7c8699}
+  .side-actions button svg,.side-actions label svg{width:14px;height:14px;opacity:.8}
+  .side-foot{font-size:10.5px;line-height:1.45;padding:2px 10px 0;border:0;background:none;color:#4f596b}
+  .side-foot #appVer{margin-top:4px;color:#6f7a8e}
+}
+/* Encart « Espace partagé » : sans cadre, textes discrets, actions en icônes */
+.share-box{display:block;border:0;border-top:1px solid rgba(255,255,255,.05);border-radius:0;background:none;padding:10px 10px 2px;margin:0 -2px}
+.sb-r1{display:flex;align-items:center;gap:7px;min-height:24px}
+.share-box .sb-dot{flex:none;width:7px;height:7px;border-radius:50%;background:#5f6a7e}
+.share-box.on .sb-dot{background:var(--ok);box-shadow:0 0 6px color-mix(in srgb,var(--ok) 70%,transparent);animation:none}
+.share-box.warn .sb-dot{background:var(--warn)}
+.share-box .sb-l{flex:1;min-width:0;font-size:12px;color:#8e98ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.share-box .sb-l b{color:#d5dbe6;font-weight:600}
+.share-box .sb-t{font-size:11px;line-height:1.45;color:#6f7a8e;padding-left:14px}
+.share-box .sb-m{color:#566175}
+.share-box .sb-b{flex:none;display:flex;gap:0}
+.share-box .sb-b .sb-ic{all:unset;cursor:pointer;padding:4px;border-radius:6px;display:grid;place-items:center;color:#6f7a8e}
+.share-box .sb-b .sb-ic:hover{background:rgba(255,255,255,.08);color:#fff}
+.share-box .sb-b .sb-ic:focus-visible{outline:2px solid var(--accent)}
+.share-box .sb-b .sb-ic svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.share-box .sb-b .sb-link{all:unset;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--accent-2);padding:2px 4px;border-radius:5px}
+.share-box .sb-b .sb-link:hover{text-decoration:underline}
+.share-box .sb-b .sb-link:focus-visible{outline:2px solid var(--accent)}
+
 </style>
 </head><body>
 <div class="app">
@@ -1716,7 +1756,7 @@ function installDialog(){
   d.showModal();
 }
 /* ---------- Application installable (PWA) : quand l'appli est servie en https ---------- */
-const APP_VERSION="2026-10-14.1";
+const APP_VERSION="2026-10-14.2";
 const isWeb=/^https?:$/.test(location.protocol);
 const isInstalled=()=>matchMedia("(display-mode: standalone)").matches||matchMedia("(display-mode: window-controls-overlay)").matches;
 let installEvt=null;
@@ -1878,15 +1918,21 @@ async function syncShared({force=false,key=null}={}){
 function snapFromR(R,per){ const s=snapFrom(R); s.period=per; return s; }
 
 function renderShareBox(){
+  /* Encart léger : mêmes informations, sans cadre ; actions en icônes (nom au survol) */
   const el=$("#shareBox"); if(!el) return; const t=share.lastSync?share.lastSync.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):"—";
-  let st,txt,btns;
-  if(!share.supported){ st="off"; txt="Espace partagé indisponible dans ce navigateur (utilisez Edge)."; btns=""; }
-  else if(!share.root){ st="off"; txt="Non connecté : vos résultats restent sur ce poste."; btns=`<button type="button" class="sb-main" data-share="connect">Connecter le dossier partagé</button>`; }
-  else if(share.perm!=="granted"){ st="warn"; txt=`Dossier « ${esc(share.name)} » : autorisation à renouveler.`; btns=`<button type="button" class="sb-main" data-share="reconnect">Reconnecter</button>`; }
-  else { const L=latestShared(); st="on"; txt=`<b>${esc(share.name)}</b> · ${share.index?share.index.periods.length:0} mois publié${share.index&&share.index.periods.length>1?"s":""}${L?`<br>Dernier : ${esc(cap(L.period))} par ${esc(L.by||"?")}`:""}<br>Synchro ${t} · vous : ${esc(me())}`;
-    btns=`<button type="button" data-share="sync">Synchroniser</button><button type="button" data-share="menu">Changer</button>`; }
-  el.className="share-box "+st;
-  el.innerHTML=`<div class="sb-h"><i></i>Espace partagé</div><div class="sb-t">${txt}</div><div class="sb-b">${btns}</div>`;
+  const ic={sync:`<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/></svg>`,
+    folder:`<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v5M9.5 13.5h5"/></svg>`};
+  let st,l1,l2="",l3="",btns="";
+  if(!share.supported){ st="off"; l1="Espace partagé"; l2="Indisponible dans ce navigateur (utilisez Edge)."; }
+  else if(!share.root){ st="off"; l1="Espace partagé"; l2="Non connecté : vos résultats restent sur ce poste."; btns=`<button type="button" class="sb-link" data-share="connect">Connecter</button>`; }
+  else if(share.perm!=="granted"){ st="warn"; l1=`<b>${esc(share.name)}</b>`; l2="Autorisation à renouveler."; btns=`<button type="button" class="sb-link" data-share="reconnect">Reconnecter</button>`; }
+  else { const L=latestShared(), n=share.index?share.index.periods.length:0; st="on";
+    l1=`<b>${esc(share.name)}</b>`;
+    l2=`${n} mois publié${n>1?"s":""}`+(L?` · dernier : ${esc(cap(L.period))} par ${esc(L.by||"?")}`:"");
+    l3=`Synchro ${t} · vous : ${esc(me())}`;
+    btns=`<button type="button" class="sb-ic" data-share="sync" title="Synchroniser maintenant" aria-label="Synchroniser maintenant">${ic.sync}</button><button type="button" class="sb-ic" data-share="menu" title="Changer de dossier partagé" aria-label="Changer de dossier partagé">${ic.folder}</button>`; }
+  el.className="share-box "+st; el.title="Espace partagé";
+  el.innerHTML=`<div class="sb-r1"><i class="sb-dot"></i><span class="sb-l">${l1}</span><span class="sb-b">${btns}</span></div>${l2?`<div class="sb-t">${l2}</div>`:""}${l3?`<div class="sb-t sb-m">${l3}</div>`:""}`;
 }
 $("#pickShare").onclick=pickShare;
 $("#copyPath").onclick=async()=>{ try{ await navigator.clipboard.writeText(SHARE_PATH); notify("Chemin copié : collez-le dans la fenêtre Windows."); }catch(_){ notify(SHARE_PATH); } };
