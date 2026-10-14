@@ -1,7 +1,7 @@
 {
-  "name": "Contrôle tarifs OT",
-  "short_name": "Contrôle OT",
-  "description": "Contrôle des nouveaux tarifs des OT clôturés (feuilles CB/IB, FH et VPN).",
+  "name": "CerTo – Contrôle des tarifs OT",
+  "short_name": "CerTo",
+  "description": "CerTo : certification des nouveaux tarifs des OT clôturés (feuilles CB/IB, FH et VPN).",
   "id": "/controle-tarifs-ot-v2/",
   "start_url": "./",
   "scope": "./",
