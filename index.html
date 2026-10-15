@@ -747,6 +747,32 @@ tr.is-sel td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
 #bulkDlg textarea{width:100%}
 #bulkErr{color:var(--bad);font-size:12.5px;min-height:18px}
 @media (max-width:700px){.selbar{left:12px;right:12px;transform:none;flex-wrap:wrap}}
+/* ---------- Clôture, journal, réouverture ---------- */
+.uptodate.locked{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.lock-pill{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:650;padding:2px 9px;border-radius:999px;background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.locked-note{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent);padding:8px 12px;border-radius:10px}
+.locked-note svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+body.locked [data-selact="decide"]{display:none}
+.act-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.req-note{font-size:12px;color:var(--warn);max-width:360px}
+.act-sum{display:flex;flex-wrap:wrap;gap:8px}
+.act-sum span{display:flex;flex-direction:column;padding:8px 14px;border-radius:12px;background:var(--sunk);border:1px solid var(--line);font-size:11.5px;color:var(--muted);min-width:96px}
+.act-sum b{font-family:var(--display);font-size:20px;color:var(--fg)}
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-height:420px;overflow-y:auto}
+.timeline li{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.timeline li:last-child{border-bottom:0}
+.t-ic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--sunk);color:var(--muted)}
+.t-close .t-ic,.t-reopen .t-ic{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.t-decision .t-ic,.t-bulk .t-ic{background:var(--ok-soft);color:var(--ok)}
+.t-publish .t-ic{background:var(--info-soft);color:var(--info)}
+.t-request .t-ic,.t-refuse .t-ic{background:var(--bad-soft);color:var(--bad)}
+.t-txt{font-size:13px}
+.t-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+.fld{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:10px}
+.fld textarea,.fld input,.pinbox input{font:inherit;font-size:14px;padding:8px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);width:100%}
+.pinbox{border:1px solid color-mix(in srgb,var(--warn) 35%,var(--line));background:color-mix(in srgb,var(--warn) 7%,transparent);border-radius:12px;padding:12px 14px;margin-bottom:6px}
+.pinbox>b{display:block;font-size:13px;margin-bottom:6px;color:var(--warn)}
+#reopenErr{color:var(--bad);font-size:12.5px;min-height:18px}
 </style>
 </head><body>
 <div class="app">
@@ -836,9 +862,10 @@ tr.is-sel td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
       </section>
 
       <section class="view" id="v-hist" hidden>
-        <p class="sub">Chaque fichier chargé est enregistré ici, par période, sur ce poste.</p>
+        <p class="sub">Chaque mois contrôlé est enregistré ici. « Activité » retrace tout ce qui a été fait ; un mois clôturé reste consultable mais n'est plus modifiable.</p>
+        <div class="card" id="actCard" hidden></div>
         <div class="card"><div class="card-h"><h2>Taux de conformité par mois</h2></div><div id="histChart"></div></div>
-        <div class="tablebox"><table><thead><tr><th>Période</th><th>Fichier</th><th class="num">Lignes</th><th class="num">Conformes</th><th class="num">À vérifier</th><th class="num">Anomalies</th><th class="num">OT sans ligne</th><th class="num">Taux</th><th>Chargé le</th><th></th></tr></thead><tbody id="histRows"></tbody></table></div>
+        <div class="tablebox"><table><thead><tr><th>Période</th><th>Fichier</th><th class="num">Lignes</th><th class="num">Conformes</th><th class="num">À vérifier</th><th class="num">Anomalies</th><th class="num">OT sans ligne</th><th class="num">Taux</th><th>Chargé le</th><th>Statut</th><th></th></tr></thead><tbody id="histRows"></tbody></table></div>
       </section>
 
       <section class="view" id="v-clients" hidden>
@@ -904,6 +931,19 @@ tr.is-sel td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
 <textarea id="bulkCom" rows="3" placeholder="Commentaire commun (ex. remise validée par le commercial, bon de commande n°…)"></textarea>
 <div id="bulkErr" role="alert"></div>
 <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap"><button class="btn" type="button" id="bulkClear">Effacer leurs décisions</button><span style="display:flex;gap:8px"><button class="btn" type="button" onclick="this.closest('dialog').close()">Annuler</button><button class="btn primary" type="button" id="bulkApply">Appliquer</button></span></div></dialog>
+<dialog id="closeDlg" style="max-width:600px"><h2 id="closeTitle">Clôturer le mois</h2><div id="closeBody"></div>
+<label class="selall-l" style="margin-top:12px"><input type="checkbox" id="closeExport" checked> Télécharger aussi le rapport final (classeur Excel)</label>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="btn" type="button" onclick="this.closest('dialog').close()">Annuler</button><button class="btn primary" type="button" id="closeOk">Clôturer</button></div></dialog>
+<dialog id="reopenDlg" style="max-width:560px"><h2 id="reopenTitle">Rouvrir le mois</h2><p class="sub" id="reopenInfo" style="margin:8px 0 12px"></p>
+<label class="fld">Motif de la réouverture<textarea id="reopenMotif" rows="2" placeholder="Ex. correction d'une décision demandée par le commercial"></textarea></label>
+<div class="pinbox"><b>Validation de Sidi M V KONE</b>
+  <div id="pinAsk"><label class="fld">Code de validation<input id="reopenPin" type="password" inputmode="numeric" autocomplete="off" placeholder="••••"></label></div>
+  <div id="pinNew" hidden><p class="sub" style="margin:4px 0 6px">Première utilisation : définissez votre code personnel (4 à 8 chiffres). Il vous sera demandé pour chaque réouverture ; seule une empreinte chiffrée est enregistrée.</p>
+    <div style="display:flex;gap:8px"><input id="pinA" type="password" inputmode="numeric" autocomplete="new-password" placeholder="Nouveau code"><input id="pinB" type="password" inputmode="numeric" autocomplete="new-password" placeholder="Confirmer le code"></div></div>
+  <p class="sub" id="pinNone" hidden style="margin:4px 0 0">Sidi M V KONE n'a pas encore défini son code. Envoyez une demande : il pourra la valider depuis son poste (Historique › Activité).</p>
+</div>
+<div id="reopenErr" role="alert"></div>
+<div style="display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:8px"><button class="btn" type="button" id="reopenAsk">Envoyer une demande</button><span style="display:flex;gap:8px"><button class="btn" type="button" onclick="this.closest('dialog').close()">Annuler</button><button class="btn primary" type="button" id="reopenGo">Rouvrir maintenant</button></span></div></dialog>
 <dialog id="help"><h2 style="margin-bottom:10px">Raccourcis clavier</h2><table><tbody>
   <tr><td><kbd>1</kbd> … <kbd>8</kbd></td><td>Changer de vue (1 = Accueil)</td></tr>
   <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Rechercher partout (codes, clients, vues, actions)</td></tr>
@@ -1233,10 +1273,10 @@ const store={ get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.pars
 Object.assign(state,{view:"dash",fStatus:"Tous",fSheet:"Toutes",fCase:"Tous",fDec:"Tous",q:"",sort:null,open:null,openCodes:[],lineCodes:[],navList:null});
 const pkey=()=>"ctot.dec."+fileTag();
 function getDecision(code){ const d=(store.get(pkey(),{}))[code]; return d&&!d.cleared?d:null; }
-function setDecision(code,d){ const all=store.get(pkey(),{}); const at=new Date().toISOString(), by=me();
+function setDecision(code,d){ if(lockGuard()) return false; const all=store.get(pkey(),{}); const at=new Date().toISOString(), by=me();
   /* Une décision effacée reste notée (cleared) pour que l'effacement se propage aussi dans l'espace partagé */
   all[code]=(d&&(d.status||d.comment))?Object.assign({at,by},d):{cleared:true,at,by};
-  store.set(pkey(),all); pushDecision(fileTag(),code,all[code]); }
+  store.set(pkey(),all); pushDecision(fileTag(),code,all[code]); logAct(fileTag(),"decision",all[code].cleared?`Décision effacée sur ${code}`:`Décision « ${all[code].status||"Commentaire"} » sur ${code}${all[code].comment?" : "+all[code].comment:""}`,{code,at:all[code].at}); return true; }
 function saveHistory(R){
   const h=store.get("ctot.hist",[]); const k=fileTag(); const cnt=s=>R.rows.filter(r=>r.statut===s).length;
   const e={key:k,period:period(),file:state.label,lines:R.rows.length,ok:cnt("Conforme"),warn:cnt("À vérifier"),bad:cnt("Anomalie"),missing:R.missing.length,at:new Date().toISOString()};
@@ -1268,7 +1308,7 @@ function renderAll(){
   const R=state.result; if(!R) return renderEmpty();
   const cnt=s=>R.rows.filter(r=>r.statut===s).length;
   const iss=issues(R);
-  $("#nLines").textContent=R.rows.length; $("#nOpen").textContent=iss.length; $("#nOpen").classList.toggle("hot",iss.length>0); $("#nHist").textContent=store.get("ctot.hist",[]).length;
+  $("#nLines").textContent=R.rows.length; { const pend=iss.filter(it=>{ const d=getDecision(it.code); return !(d&&d.status); }).length; $("#nOpen").textContent=pend; $("#nOpen").classList.toggle("hot",pend>0); $("#nOpen").title=pend?`${pend} point${pend>1?"s":""} sans décision sur ${iss.length}`:`${iss.length} point${iss.length>1?"s":""}, tous traités`; } $("#nHist").textContent=store.get("ctot.hist",[]).length;
   renderTop(R);
   const rate=R.rows.length?Math.round(100*cnt("Conforme")/R.rows.length):0;
   const ecart=R.rows.reduce((a,r)=>a+(r.corrige?0:Math.abs(r.ecart)),0);
@@ -1343,8 +1383,8 @@ function renderHist(){
     const bars=h.map((e,i)=>`<rect x="${x(i)-bw/2}" y="${y(rate(e))}" width="${bw}" height="${ih*rate(e)/100}" rx="4" fill="var(--accent)"/><text x="${x(i)}" y="${y(rate(e))-4}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--fg)">${rate(e)} %</text><text x="${x(i)}" y="${Hh-12}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${esc(cap(e.period))}</text>`).join("");
     return `<svg class="hist-chart" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Taux de conformité par mois">${grid}${bars}</svg>`; };
   $("#histChart").innerHTML=chart(); $("#dashHist").innerHTML=chart();
-  $("#histRows").innerHTML=h.length?h.slice().reverse().map(e=>`<tr style="cursor:default"><td><b>${esc(cap(e.period))}</b></td><td>${esc(e.file)}</td><td class="num">${e.lines}</td><td class="num">${e.ok}</td><td class="num">${e.warn}</td><td class="num">${e.bad}</td><td class="num">${e.missing}</td><td class="num">${rate(e)} %</td><td class="mono">${new Date(e.at).toLocaleDateString("fr-FR")}</td><td style="white-space:nowrap">${shareHas(e.key)?`<button class="chip" type="button" data-openp="${esc(e.key)}">Ouvrir</button> `:""}<button class="chip" type="button" data-del="${esc(e.key)}">Retirer</button></td></tr>`).join("")
-    :`<tr><td colspan="10" class="empty">L'historique est vide.</td></tr>`;
+  $("#histRows").innerHTML=h.length?h.slice().reverse().map(e=>`<tr style="cursor:default"><td><b>${esc(cap(e.period))}</b></td><td>${esc(e.file)}</td><td class="num">${e.lines}</td><td class="num">${e.ok}</td><td class="num">${e.warn}</td><td class="num">${e.bad}</td><td class="num">${e.missing}</td><td class="num">${rate(e)} %</td><td class="mono">${new Date(e.at).toLocaleDateString("fr-FR")}</td><td>${closedTag(e.key)}</td><td style="white-space:nowrap"><button class="chip" type="button" data-actk="${esc(e.key)}">Activité</button> ${shareHas(e.key)?`<button class="chip" type="button" data-openp="${esc(e.key)}">Ouvrir</button> `:""}<button class="chip" type="button" data-del="${esc(e.key)}">Retirer</button></td></tr>`).join("")
+    :`<tr><td colspan="11" class="empty">L'historique est vide.</td></tr>`;
 }
 function renderEmpty(){
   $("#kpis").innerHTML=""; renderHero(null); renderHome(null); document.body.classList.remove("has-data");
@@ -1725,7 +1765,7 @@ function openDrawer(code,ctx){
   const ckRow=(n,ok,txt)=>`<div><span class="pill ${ok==="na"?"na":ok?"ok":"bad"}">${n}</span><span>${txt}</span></div>`;
   const pager=pos>=0&&list.length>1?`<nav class="pager" aria-label="Navigation"><button class="btn icon" type="button" id="prevD" aria-label="Précédent" title="Précédent (↑)" ${pos<=0?"disabled":""}><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span class="sub mono">${pos+1}/${list.length}</span><button class="btn icon" type="button" id="nextD" aria-label="Suivant" title="Suivant (↓)" ${pos>=list.length-1?"disabled":""}><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></nav>`:"";
   const head=(title,sub,pill)=>`<header><div><h3>${esc(title)}</h3><div class="sub">${sub}</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">${pill}${pager}<button class="btn" type="button" id="closeD" aria-label="Fermer">Fermer</button></div></header>`;
-  const decision=`<div class="decision"><h2>Décision</h2>
+  const decision=isClosed(fileTag())?lockedDecision(d):`<div class="decision"><h2>Décision</h2>
       <div class="seg" id="segDec">${opts.map(x=>`<button type="button" class="chip" aria-pressed="${d.status===x}" data-dec="${x}">${x}</button>`).join("")}</div>
       <textarea id="decCom" placeholder="Commentaire (ex. remise validée par le commercial, bon de commande n°…)">${esc(d.comment||"")}</textarea>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary" type="button" id="saveDec">Enregistrer</button><button class="btn" type="button" id="clearDec">Effacer</button><span class="sub"><kbd>Ctrl</kbd>+<kbd>Entrée</kbd></span></div>
@@ -1756,12 +1796,12 @@ function openDrawer(code,ctx){
   const dr=$("#drawer"), bg=$("#drawerBg");
   if(!wasOpen){ dr.classList.add("enter"); bg.classList.add("enter"); dr.hidden=false; bg.hidden=false; void dr.offsetWidth; dr.classList.remove("enter"); bg.classList.remove("enter"); }
   $("#closeD").focus({preventScroll:true});
-  let pick=d.status||"";
+  let pick=d.status||""; if($("#segDec")){
   $("#segDec").onclick=e=>{ const b=e.target.closest("[data-dec]"); if(!b) return; pick=pick===b.dataset.dec?"":b.dataset.dec; $("#segDec").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.dec===pick)); };
-  $("#saveDec").onclick=()=>{ setDecision(code,{status:pick,comment:$("#decCom").value.trim()}); renderAll(); notify(pick?`Décision « ${pick} » enregistrée pour ${code}.`:"Commentaire enregistré.");
+  $("#saveDec").onclick=()=>{ if(setDecision(code,{status:pick,comment:$("#decCom").value.trim()})===false) return; renderAll(); notify(pick?`Décision « ${pick} » enregistrée pour ${code}.`:"Commentaire enregistré.");
     /* Enchaînement : on passe directement au point suivant */
     const nx=list[pos+1]; if(pick&&nx) openDrawer(nx); else openDrawer(code); };
-  $("#clearDec").onclick=()=>{ setDecision(code,null); renderAll(); notify("Décision effacée."); openDrawer(code); };
+  $("#clearDec").onclick=()=>{ if(setDecision(code,null)===false) return; renderAll(); notify("Décision effacée."); openDrawer(code); }; }
   $("#closeD").onclick=closeDrawer;
   const p=$("#prevD"), n=$("#nextD"); if(p) p.onclick=()=>openDrawer(list[pos-1]); if(n) n.onclick=()=>openDrawer(list[pos+1]);
 }
@@ -1856,7 +1896,7 @@ function installDialog(){
   d.showModal();
 }
 /* ---------- Application installable (PWA) : quand l'appli est servie en https ---------- */
-const APP_VERSION="2026-10-15.1";
+const APP_VERSION="2026-10-15.2";
 const LOGO_PNG="data:image/png;base64,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";
 const isWeb=/^https?:$/.test(location.protocol);
 const isInstalled=()=>matchMedia("(display-mode: standalone)").matches||matchMedia("(display-mode: window-controls-overlay)").matches;
@@ -1962,6 +2002,7 @@ async function disconnectShare(){ share.root=null; share.base=null; share.index=
 /* Publication par le poste qui charge le fichier */
 async function publishShared(data,label,bytes){
   try{ if(!await shareReady()) return;
+    if(isClosed(fileTag())){ notify(`${cap(period())} est clôturé : ce fichier est affiché pour consultation mais n'est pas publié.`,true); return; }
     const key=fileTag(), at=new Date().toISOString(), by=me(), R=state.result, n=s=>R.rows.filter(r=>r.statut===s).length;
     const dir=await sub(share.base,["periodes",key]);
     await writeJSON(dir,"donnees.json",{app:"controle-tarifs-ot",format:1,key,period:period(),file:label,by,at,data});
@@ -1973,7 +2014,7 @@ async function publishShared(data,label,bytes){
     const idx=(await readJSON(share.base,"index.json"))||{app:"controle-tarifs-ot",periods:[]};
     const e={key,period:period(),file:label,by,at,lines:R.rows.length,ok:n("Conforme"),warn:n("À vérifier"),bad:n("Anomalie"),missing:R.missing.length,sheets:shList(R)};
     const i=idx.periods.findIndex(x=>x.key===key); if(i>=0) idx.periods[i]=e; else idx.periods.push(e);
-    await writeJSON(share.base,"index.json",idx); share.index=idx;
+    await writeJSON(share.base,"index.json",idx); share.index=idx; logAct(key,"publish",`Fichier « ${label} » chargé et publié (${R.rows.length} lignes contrôlées, ${issues(R).length} points à traiter)`);
     state.shared={key,by,at}; share.lastSync=new Date(); renderShareBox(); renderAll();
     notify(`Publié dans l'espace partagé : vos collègues voient maintenant ${cap(period())}.`);
   }catch(e){ notify("La publication dans l'espace partagé a échoué : "+(e.message||e),true); }
@@ -2019,7 +2060,7 @@ async function syncShared({force=false,key=null}={}){
         if(!first&&!force) notify(`Nouvelles données de ${d.by} : ${cap(d.period)}.`); }
     } else if(state.result) renderAll(); else { renderHist(); renderCmp(); }
     share.lastSync=new Date();
-  }catch(e){ share.perm=e&&e.name==="NotAllowedError"?"prompt":share.perm; console.warn(e); }
+  notifyRequests(); if(state.actKey) renderActivity(); }catch(e){ share.perm=e&&e.name==="NotAllowedError"?"prompt":share.perm; console.warn(e); }
   finally{ share.busy=false; renderShareBox(); }
 }
 /* Instantané pour le comparatif d'un mois donné (sans dépendre du champ « Période ») */
@@ -2059,7 +2100,7 @@ setInterval(()=>{ if(document.visibilityState==="visible") syncShared(); },60*10
 /* ---------- En-tête simplifié : mois en titre, phrase claire, parcours en 3 étapes ---------- */
 const dt=d=>d?d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})+" à "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):"";
 function renderTop(R){
-  $("#editPeriod").hidden=!R; $("#upToDate").hidden=!R;
+  $("#editPeriod").hidden=!R; $("#upToDate").hidden=!R; renderLock(R);
   if(!R){ $("#title").textContent="Contrôle des nouveaux tarifs"; $("#meta").innerHTML=`<span>Commencez par charger le fichier « Ordres de travail clôturés » du mois.</span>`; renderSteps(null); return; }
   $("#title").textContent=cap(period());
   const by=state.shared&&state.shared.by;
@@ -2072,11 +2113,11 @@ function renderSteps(R){
   const s=[
     R?{st:"done",lab:"Fichier chargé",act:"file"}:{st:"cur",lab:"Charger le fichier du mois",act:"file"},
     !R?{st:"todo",lab:"Traiter les points",act:"open"}:pend?{st:"cur",lab:`Traiter ${pend} point${pend>1?"s":""}`,act:"open"}:{st:"done",lab:"Points traités",act:"open"},
-    {st:R&&!pend?"cur":"todo",lab:"Envoyer le rapport",act:"export"}];
+    (R&&isClosed(fileTag()))?{st:"done",lab:"Mois clôturé",act:"closed"}:{st:R&&!pend?"cur":"todo",lab:"Clôturer le mois",act:"close"}];
   $("#steps").innerHTML=s.map((x,i)=>`${i?'<li class="sep" aria-hidden="true"></li>':""}<li><button type="button" class="step ${x.st}" data-step="${x.act}"${x.st==="cur"?' aria-current="step"':""}><span class="n">${x.st==="done"?ck:i+1}</span>${x.lab}</button></li>`).join("");
 }
 $("#steps").addEventListener("click",e=>{ const b=e.target.closest("[data-step]"); if(!b) return; const a=b.dataset.step;
-  if(a==="file") $("#file").click(); else if(a==="open"){ if(state.result){ state.fDec="Sans décision"; renderAll(); } go("open"); } else if(a==="export") openExport(); });
+  if(a==="file") $("#file").click(); else if(a==="open"){ if(state.result){ state.fDec="Sans décision"; renderAll(); } go("open"); } else if(a==="export") openExport(); else if(a==="close") openClose(); else if(a==="closed") setActKey(fileTag()); });
 
 /* Mois modifiable d'un clic sur le crayon */
 $("#editPeriod").onclick=()=>{ $(".top").classList.add("editing"); const i=$("#period"); i.focus(); i.select(); };
@@ -2146,7 +2187,7 @@ document.addEventListener("click",e=>{ const b=e.target.closest("[data-selact]")
 
 /* ---------- Décision groupée ---------- */
 let bulkPick="";
-function openBulk(){
+function openBulk(){ if(lockGuard()) return;
   const T=selTargets(), iss=selIssues(T);
   if(!T.codes.length) return notify("Aucun code dans la sélection.",true);
   const onlyIss=$("#bulkOnlyIssues"); onlyIss.checked=iss.length>0; onlyIss.disabled=!iss.length;
@@ -2166,10 +2207,10 @@ $("#bulkClear").onclick=()=>{ const T=selTargets(), codes=$("#bulkOnlyIssues").c
   if(!confirm(`Effacer les décisions de ${codes.length} code${codes.length>1?"s":""} ?`)) return;
   setDecisionsBulk(codes,null); $("#bulkDlg").close(); renderAll(); notify(`Décisions effacées pour ${codes.length} code${codes.length>1?"s":""}.`); };
 /* Enregistrement en une fois (poste + espace partagé) */
-function setDecisionsBulk(codes,d){
+function setDecisionsBulk(codes,d){ if(lockGuard()) return false;
   const all=store.get(pkey(),{}), at=new Date().toISOString(), by=me();
   for(const c of codes) all[c]=(d&&(d.status||d.comment))?Object.assign({at,by},d):{cleared:true,at,by};
-  store.set(pkey(),all); pushDecisions(fileTag(),codes.map(c=>[c,all[c]]));
+  store.set(pkey(),all); pushDecisions(fileTag(),codes.map(c=>[c,all[c]])); logAct(fileTag(),"bulk",(d&&d.status?`Décision groupée « ${d.status} »`:"Décisions effacées")+` sur ${codes.length} code${codes.length>1?"s":""} : ${codes.slice(0,12).join(", ")}${codes.length>12?"…":""}${d&&d.comment?" · "+d.comment:""}`,{codes,at:all[codes[0]]&&all[codes[0]].at});
 }
 
 /* ---------- Export Excel de la sélection ---------- */
@@ -2215,6 +2256,142 @@ async function exportSelection(){
     notify(`Sélection exportée : ${clients.length} client${clients.length>1?"s":""}, ${T.codes.length} code${T.codes.length>1?"s":""}.`);
   }catch(err){ notify("L'export de la sélection n'a pas abouti : "+(err.message||err),true); }
 }
+
+/* ---------- Clôture du mois, journal d'activité, réouverture validée ----------
+   Un mois clôturé passe en lecture seule (consultation et export uniquement).
+   Sa réouverture exige le code de validation de l'approbateur (Sidi M V KONE). Tout est tracé dans le journal. */
+const APPROVER="Sidi M V KONE";
+const isApprover=()=>keyN(me())===keyN(APPROVER);
+const fmtDT=iso=>{ const d=new Date(iso); return isNaN(d)?"":d.toLocaleDateString("fr-FR")+" à "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}); };
+function closedInfo(key){ const p=share.index&&share.index.periods.find(x=>x.key===key); if(p&&share.root&&share.perm==="granted") return p.closed||null; return (store.get("ctot.closed",{}))[key]||null; }
+const isClosed=key=>!!closedInfo(key);
+function lockGuard(){ if(state.result&&isClosed(fileTag())){ notify(`${cap(period())} est clôturé : consultation seule. Pour modifier, demandez une réouverture (Historique › Activité).`,true); return true; } return false; }
+function lockedDecision(d){ return `<div class="decision"><h2>Décision</h2><div class="locked-note"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Mois clôturé : décision en lecture seule.</div>
+  <div>${d.status?`<span class="pill ${decCls[d.status]||"na"}">${esc(d.status)}</span>`:'<span class="sub">Aucune décision</span>'} ${d.comment?esc(d.comment):""}</div>${d.at?`<span class="sub">${d.by?"Par "+esc(d.by)+", le ":"Le "}${fmtDT(d.at)}</span>`:""}</div>`; }
+
+/* --- Journal d'activité : local + espace partagé (journal.json par mois) --- */
+async function logAct(key,type,text,extra={}){
+  const e=Object.assign({at:new Date().toISOString(),by:me(),type,text},extra);
+  const loc=store.get("ctot.jrn."+key,[]); loc.push(e); store.set("ctot.jrn."+key,loc.slice(-3000));
+  try{ if(share.root&&share.perm==="granted"&&shareHas(key)){ const dir=await sub(share.base,["periodes",key]); const j=(await readJSON(dir,"journal.json"))||[]; j.push(e); await writeJSON(dir,"journal.json",j); } }catch(_){}
+  if(state.actKey===key) renderActivity();
+}
+async function loadActivity(key){
+  let j=[]; try{ if(share.root&&share.perm==="granted"&&shareHas(key)){ const dir=await sub(share.base,["periodes",key],false); j=(await readJSON(dir,"journal.json"))||[]; } }catch(_){}
+  const seen=new Set(j.map(e=>e.at+"|"+e.by+"|"+e.type+"|"+(e.code||"")));
+  for(const e of store.get("ctot.jrn."+key,[])){ const k=e.at+"|"+e.by+"|"+e.type+"|"+(e.code||""); if(!seen.has(k)){ j.push(e); seen.add(k); } }
+  /* Décisions antérieures au journal : reconstituées à partir de leur date et de leur auteur */
+  const decs=store.get("ctot.dec."+key,{}); const logged=new Set(j.filter(e=>e.type==="decision"||e.type==="bulk").flatMap(e=>(e.codes||[e.code]).map(c=>c+"|"+e.at)));
+  for(const [c,d] of Object.entries(decs)) if(d.at&&!logged.has(c+"|"+d.at)) j.push({at:d.at,by:d.by||"?",type:"decision",code:c,text:d.cleared?`Décision effacée sur ${c}`:`Décision « ${d.status||"Commentaire"} » sur ${c}${d.comment?" : "+d.comment:""}`,derived:true});
+  const p=share.index&&share.index.periods.find(x=>x.key===key);
+  if(p&&!j.some(e=>e.type==="publish")) j.push({at:p.at,by:p.by,type:"publish",text:`Fichier « ${p.file} » chargé et publié (${p.lines} lignes contrôlées)`});
+  return j.filter(e=>e.at).sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+}
+const ACT_IC={publish:"↑",decision:"✓",bulk:"✓✓",close:"🔒",reopen:"🔓",request:"?",refuse:"✕",pin:"🔑"};
+function setActKey(key){ state.actKey=key; renderActivity(); go("hist"); setTimeout(()=>$("#actCard").scrollIntoView({behavior:"smooth",block:"start"}),60); }
+async function renderActivity(){
+  const el=$("#actCard"), key=state.actKey; if(!el) return; if(!key){ el.hidden=true; return; }
+  const h=store.get("ctot.hist",[]).find(x=>x.key===key), per=h?cap(h.period):key.replace(/_/g," "), c=closedInfo(key), req=reopenRequest(key);
+  el.hidden=false; el.innerHTML=`<div class="card-h"><h2>Activité · ${esc(per)}</h2><span class="sub">Chargement…</span></div>`;
+  const list=await loadActivity(key); if(state.actKey!==key) return;
+  const act=c?`${req?`<span class="req-note">Demande de réouverture par ${esc(req.by)} le ${fmtDT(req.at)} : « ${esc(req.motif)} »</span>`:""}<button class="btn" type="button" data-reopen="${esc(key)}">${isApprover()?"Rouvrir le mois":"Demander la réouverture"}</button>`
+    :(state.result&&fileTag()===key&&!isClosed(key)?`<button class="btn primary" type="button" data-closem>Clôturer le mois</button>`:"");
+  el.innerHTML=`<div class="card-h"><div><h2>Activité · ${esc(per)}</h2><span class="sub">${c?`<span class="lock-pill">🔒 Clôturé le ${fmtDT(c.at)} par ${esc(c.by)}</span> · consultation seule`:"Mois en cours de contrôle"}</span></div>
+    <div class="act-tools">${shareHas(key)&&fileTag()!==key?`<button class="btn" type="button" data-openp="${esc(key)}">Ouvrir ce mois</button>`:""}${act}<button class="btn icon" type="button" data-actclose aria-label="Fermer l'activité"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+    ${c&&c.summary?`<div class="act-sum">${Object.entries({"Lignes":c.summary.lines,"Points traités":c.summary.decided+" / "+c.summary.issues,"Validés":c.summary.byStatus["Validé"]||0,"Justifiés":c.summary.byStatus["Justifié"]||0,"À corriger":c.summary.byStatus["À corriger"]||0,"Corrigés":c.summary.byStatus["Corrigé"]||0}).map(([k,v])=>`<span><b>${v}</b>${k}</span>`).join("")}</div>`:""}
+    ${list.length?`<ol class="timeline">${list.map(e=>`<li class="t-${e.type}"><span class="t-ic">${ACT_IC[e.type]||"•"}</span><div><div class="t-txt">${esc(e.text)}</div><div class="t-meta">${esc(e.by||"?")} · ${fmtDT(e.at)}${e.derived?" · reconstitué":""}</div></div></li>`).join("")}</ol>`:'<p class="sub">Aucune activité enregistrée pour ce mois.</p>'}`;
+}
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-actk]"); if(a) return setActKey(a.dataset.actk);
+  if(e.target.closest("[data-actclose]")){ state.actKey=null; renderActivity(); return; }
+  if(e.target.closest("[data-closem]")) return openClose();
+  const r=e.target.closest("[data-reopen]"); if(r) return openReopen(r.dataset.reopen);
+});
+function closedTag(key){ const c=closedInfo(key); return c?`<span class="lock-pill" title="Clôturé le ${fmtDT(c.at)} par ${esc(c.by)}">🔒 Clôturé</span>`:'<span class="sub">En cours</span>'; }
+
+/* --- Clôture --- */
+function closeSummary(){ const R=state.result, iss=issues(R), byStatus={}; let decided=0;
+  for(const it of iss){ const d=getDecision(it.code); if(d&&d.status){ decided++; byStatus[d.status]=(byStatus[d.status]||0)+1; } }
+  return {lines:R.rows.length,issues:iss.length,decided,byStatus,missing:R.missing.length,anomalies:R.rows.filter(r=>r.statut==="Anomalie").length}; }
+function openClose(){
+  if(!state.result) return notify("Chargez d'abord le fichier du mois.",true);
+  if(isClosed(fileTag())) return setActKey(fileTag());
+  const s=closeSummary(), pend=s.issues-s.decided;
+  $("#closeTitle").textContent="Clôturer "+cap(period());
+  $("#closeBody").innerHTML=`<div class="act-sum">${[["Lignes contrôlées",s.lines],["Points à traiter",s.issues],["Points traités",s.decided],["Validés",s.byStatus["Validé"]||0],["Justifiés",s.byStatus["Justifié"]||0],["À corriger",s.byStatus["À corriger"]||0],["Corrigés",s.byStatus["Corrigé"]||0]].map(([k,v])=>`<span><b>${v}</b>${k}</span>`).join("")}</div>
+    ${pend?`<div class="err" style="margin-top:12px">Il reste <b>${pend} point${pend>1?"s":""} sans décision</b>. Traitez-les avant de clôturer.</div>`
+      :`<p class="sub" style="margin:12px 0 0">Après la clôture, le mois passe en <b>lecture seule</b> pour toute l'équipe : plus aucune décision ne pourra être modifiée. Une réouverture ne sera possible qu'avec la validation de <b>${APPROVER}</b>.${share.root&&share.perm==="granted"?"":"<br><b>Attention :</b> l'espace partagé n'est pas connecté, la clôture ne s'appliquera qu'à ce poste."}</p>`}`;
+  $("#closeExport").checked=true; $("#closeOk").disabled=!!pend; $("#closeOk").textContent=pend?"Clôture impossible":"Clôturer "+cap(period());
+  $("#closeDlg").showModal();
+}
+$("#closeOk").onclick=async()=>{ $("#closeDlg").close(); const exp=$("#closeExport").checked; await closeMonth(); if(exp) setTimeout(()=>$("#exportBtn").click(),300); };
+async function closeMonth(){
+  const key=fileTag(), rec={at:new Date().toISOString(),by:me(),summary:closeSummary()};
+  const loc=store.get("ctot.closed",{}); loc[key]=rec; store.set("ctot.closed",loc);
+  try{ if(await shareReady()&&shareHas(key)){
+      const idx=(await readJSON(share.base,"index.json"))||{periods:[]}; const p=idx.periods.find(x=>x.key===key); if(p){ p.closed=rec; delete p.reopenRequest; }
+      await writeJSON(share.base,"index.json",idx); share.index=idx;
+      const dir=await sub(share.base,["periodes",key]); const cl=(await readJSON(dir,"cloture.json"))||{history:[]}; cl.closed=rec; cl.request=null; cl.history.push({type:"close",...rec}); await writeJSON(dir,"cloture.json",cl); } }
+  catch(e){ notify("Clôture enregistrée sur ce poste, mais pas dans l'espace partagé : "+(e.message||e),true); }
+  await logAct(key,"close",`Mois clôturé · ${rec.summary.decided} point${rec.summary.decided>1?"s":""} traité${rec.summary.decided>1?"s":""} sur ${rec.summary.issues}`);
+  renderAll(); renderActivity(); notify(`${cap(period())} est clôturé. Il est désormais en lecture seule.`);
+}
+
+/* --- Réouverture : demande (tout utilisateur) ou validation par code (approbateur) --- */
+function reopenRequest(key){ const p=share.index&&share.index.periods.find(x=>x.key===key); return (p&&p.reopenRequest)||(store.get("ctot.reqs",{}))[key]||null; }
+async function getCfg(){ try{ if(await shareReady()){ const c=await readJSON(share.base,"config.json"); if(c) return c; } }catch(_){} return store.get("ctot.cfg",{}); }
+async function setCfg(c){ store.set("ctot.cfg",c); try{ if(await shareReady()) await writeJSON(share.base,"config.json",c); }catch(_){} }
+async function sha(s){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+let reopenKey=null;
+async function openReopen(key){
+  reopenKey=key; const c=closedInfo(key), cfg=await getCfg(), hasPin=!!(cfg.pin&&cfg.pin.hash), req=reopenRequest(key);
+  const h=store.get("ctot.hist",[]).find(x=>x.key===key);
+  $("#reopenTitle").textContent="Rouvrir "+(h?cap(h.period):key);
+  $("#reopenInfo").innerHTML=`Clôturé le ${fmtDT(c.at)} par <b>${esc(c.by)}</b>. Une réouverture rend le mois de nouveau modifiable et sera inscrite au journal.`;
+  $("#reopenMotif").value=req?req.motif:"";
+  $("#pinNew").hidden=!(isApprover()&&!hasPin); $("#pinAsk").hidden=!hasPin;
+  $("#pinNone").hidden=hasPin||isApprover();
+  $("#reopenPin").value=""; $("#pinA").value=""; $("#pinB").value=""; $("#reopenErr").textContent="";
+  $("#reopenGo").hidden=!hasPin&&!isApprover();
+  $("#reopenDlg").showModal();
+}
+$("#reopenAsk").onclick=async()=>{ const motif=$("#reopenMotif").value.trim(); if(!motif){ $("#reopenErr").textContent="Indiquez le motif de la réouverture."; return; }
+  const key=reopenKey, req={at:new Date().toISOString(),by:me(),motif};
+  const loc=store.get("ctot.reqs",{}); loc[key]=req; store.set("ctot.reqs",loc);
+  try{ if(await shareReady()&&shareHas(key)){ const idx=(await readJSON(share.base,"index.json"))||{periods:[]}; const p=idx.periods.find(x=>x.key===key); if(p) p.reopenRequest=req; await writeJSON(share.base,"index.json",idx); share.index=idx;
+      const dir=await sub(share.base,["periodes",key]); const cl=(await readJSON(dir,"cloture.json"))||{history:[]}; cl.request=req; cl.history.push({type:"request",...req}); await writeJSON(dir,"cloture.json",cl); } }catch(_){}
+  await logAct(key,"request",`Demande de réouverture : « ${motif} »`);
+  $("#reopenDlg").close(); renderActivity(); notify(`Demande envoyée. ${APPROVER} pourra la valider depuis l'Historique.`); };
+$("#reopenGo").onclick=async()=>{
+  const motif=$("#reopenMotif").value.trim(); if(!motif){ $("#reopenErr").textContent="Indiquez le motif de la réouverture."; return; }
+  let cfg=await getCfg();
+  if(!(cfg.pin&&cfg.pin.hash)){ /* Première utilisation : l'approbateur définit son code */
+    if(!isApprover()){ $("#reopenErr").textContent=`Seul ${APPROVER} peut valider.`; return; }
+    const a=$("#pinA").value.trim(), b=$("#pinB").value.trim();
+    if(!/^\d{4,8}$/.test(a)){ $("#reopenErr").textContent="Le code doit contenir 4 à 8 chiffres."; return; }
+    if(a!==b){ $("#reopenErr").textContent="Les deux saisies du code sont différentes."; return; }
+    const salt=crypto.getRandomValues(new Uint32Array(2)).join("-"); cfg=Object.assign({},cfg,{approver:APPROVER,pin:{salt,hash:await sha(salt+":"+a)}}); await setCfg(cfg);
+    await logAct(reopenKey,"pin",`Code de validation défini par ${APPROVER}`);
+  } else { const pin=$("#reopenPin").value.trim(); if(await sha(cfg.pin.salt+":"+pin)!==cfg.pin.hash){ $("#reopenErr").textContent=`Code de validation de ${APPROVER} incorrect.`; return; } }
+  const key=reopenKey, rec={at:new Date().toISOString(),by:me(),validatedBy:APPROVER,motif};
+  const loc=store.get("ctot.closed",{}); delete loc[key]; store.set("ctot.closed",loc); const lr=store.get("ctot.reqs",{}); delete lr[key]; store.set("ctot.reqs",lr);
+  try{ if(await shareReady()&&shareHas(key)){ const idx=(await readJSON(share.base,"index.json"))||{periods:[]}; const p=idx.periods.find(x=>x.key===key); if(p){ delete p.closed; delete p.reopenRequest; } await writeJSON(share.base,"index.json",idx); share.index=idx;
+      const dir=await sub(share.base,["periodes",key]); const cl=(await readJSON(dir,"cloture.json"))||{history:[]}; cl.closed=null; cl.request=null; cl.history.push({type:"reopen",...rec}); await writeJSON(dir,"cloture.json",cl); } }
+  catch(e){ notify("Réouverture enregistrée sur ce poste, mais pas dans l'espace partagé : "+(e.message||e),true); }
+  await logAct(key,"reopen",`Mois rouvert, validé par ${APPROVER} · motif : « ${motif} »`);
+  $("#reopenDlg").close(); renderAll(); renderActivity(); notify("Le mois est rouvert : il est de nouveau modifiable.");
+};
+
+/* --- En-tête : badge « Clôturé » et mode lecture seule --- */
+function renderLock(R){
+  const c=R&&closedInfo(fileTag()), b=$("#upToDate");
+  document.body.classList.toggle("locked",!!c);
+  if(c){ b.className="uptodate locked"; b.innerHTML=`<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Clôturé le ${fmtDT(c.at)} par ${esc(c.by)}`; $("#editPeriod").hidden=true; }
+  else { b.className="uptodate"; b.innerHTML=`<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>À jour`; }
+}
+/* L'approbateur est prévenu des demandes en attente */
+let reqNotified=new Set();
+function notifyRequests(){ if(!isApprover()||!share.index) return; for(const p of share.index.periods) if(p.closed&&p.reopenRequest&&!reqNotified.has(p.key+p.reopenRequest.at)){ reqNotified.add(p.key+p.reopenRequest.at); notify(`Demande de réouverture de ${cap(p.period)} par ${p.reopenRequest.by}. Ouvrez Historique › Activité pour la traiter.`); } }
 
 /* ---------- Chargement du fichier ---------- */
 function run(data,label,example,opts={}){
