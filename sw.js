@@ -1,7 +1,7 @@
 /* Contrôle tarifs OT — fonctionnement hors ligne et mises à jour.
    En ligne : la page est toujours chargée depuis GitHub (dernière version publiée).
    Hors ligne (ou réseau trop lent) : la dernière copie enregistrée est utilisée. */
-const VERSION = "2026-10-18.1";
+const VERSION = "2026-10-18.2";
 const CACHE = "ctot-" + VERSION;
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 
